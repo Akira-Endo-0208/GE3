@@ -1,26 +1,29 @@
 #include "Input.h"
 
-void Input::Initialize(HINSTANCE hInstance, HWND hwnd) {
+void Input::Initialize(WinApp* winApp) {
 #pragma region DirectInput関連
 
 	HRESULT result;
 
+	//借りてきたWinAppのインスタンスを記録
+	this->winApp_ = winApp;
+
 	//DirectInputの初期化
 	
 	result = DirectInput8Create(
-		hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&directInput, nullptr);
+		winApp->GetHInstance(), DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&directInput_, nullptr);
 	assert(SUCCEEDED(result));
 
 	
-	result = directInput->CreateDevice(GUID_SysKeyboard, &keyboard, NULL);
+	result = directInput_->CreateDevice(GUID_SysKeyboard, &keyboard_, NULL);
 	assert(SUCCEEDED(result));
 
 	//入力データ形式のセット
-	result = keyboard->SetDataFormat(&c_dfDIKeyboard); //標準形式
+	result = keyboard_->SetDataFormat(&c_dfDIKeyboard); //標準形式
 	assert(SUCCEEDED(result));
 
 	//排他制御レベルのセット
-	result = keyboard->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
+	result = keyboard_->SetCooperativeLevel(winApp->GetHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
 	assert(SUCCEEDED(result));
 
 #pragma endregion
@@ -31,11 +34,11 @@ void Input::Update() {
 	HRESULT result;
 
 	//前回のキー入力を保存
-	memcpy(prevKey, key, sizeof(key));
+	memcpy(prevKey_, key_, sizeof(key_));
 
-	result = keyboard->Acquire();
+	result = keyboard_->Acquire();
 	
-	result = keyboard->GetDeviceState(sizeof(key), key);
+	result = keyboard_->GetDeviceState(sizeof(key_), key_);
 
 }
 
@@ -43,7 +46,7 @@ bool Input::PushKey(BYTE keyNumber)
 {
 	
 	//指定キーを押していればtrueを返す
-	if (key[keyNumber])
+	if (key_[keyNumber])
 	{
 		return true;
 	}
@@ -52,7 +55,7 @@ bool Input::PushKey(BYTE keyNumber)
 
 bool Input::TriggerKey(BYTE keyNumber)
 {
-	if (!prevKey[keyNumber] && key[keyNumber])
+	if (!prevKey_[keyNumber] && key_[keyNumber])
 	{
 		return true;
 	}
