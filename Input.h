@@ -22,8 +22,18 @@ public:
 	void Initialize(HINSTANCE hInstance,HWND hwnd);
 	//更新
 	void Update();
-
+	//キーが押されているかチェック
+	bool PushKey(BYTE keyNumber);
+	//キーのトリガーをチェック
+	bool TriggerKey(BYTE keyNumber);
 private:
+
+	ComPtr<IDirectInput8> directInput;
+
 	ComPtr<IDirectInputDevice8> keyboard;
+
+	BYTE key[256] = {};
+	BYTE prevKey[256] = {};
+
 };
 

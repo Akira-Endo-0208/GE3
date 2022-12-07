@@ -1050,10 +1050,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 #pragma region ビュー行列の計算
 		//ビュー行列の計算
-		if (key[DIK_D] || key[DIK_A])
+		if (input->PushKey(DIK_D) || input->PushKey(DIK_A))
 		{
-			if (key[DIK_D]) { angle += XMConvertToRadians(2.0f); }
-			else if (key[DIK_A]) { angle -= XMConvertToRadians(2.0f); }
+			if (input->PushKey(DIK_D)) { angle += XMConvertToRadians(2.0f); }
+			else if (input->PushKey(DIK_A)) { angle -= XMConvertToRadians(2.0f); }
 
 			//angleラジアンだけY軸まわりに回転。半径は-100
 			eye.x = -100 * sinf(angle);
@@ -1065,8 +1065,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 #pragma region ワールド行列の計算
 
-		if(key[DIK_UP]){object3ds[0].position.y += 1.0f; }
-		if (key[DIK_DOWN]) { object3ds[0].position.y -= 1.0f; }
+		if(input->PushKey(DIK_UP)){object3ds[0].position.y += 1.0f; }
+		if (input->PushKey(DIK_DOWN)) { object3ds[0].position.y -= 1.0f; }
 		for (size_t i = 0; i < _countof(object3ds); i++)
 		{
 			object3ds[i].UpdateObject3d(matView, matProjection);
@@ -1147,7 +1147,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		//SRVヒープの先頭ハンドルを取得
 		D3D12_GPU_DESCRIPTOR_HANDLE srvGpuHandle = srvHeap->GetGPUDescriptorHandleForHeapStart();
 
-		if (key[DIK_SPACE])
+		if (input->TriggerKey(DIK_SPACE))
 		{
 			srvGpuHandle.ptr += incrementSize;
 		}
