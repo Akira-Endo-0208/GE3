@@ -6,20 +6,16 @@
 #include<string>
 #include <DirectXMath.h>
 #include <d3dcompiler.h>
-#include <dinput.h>
 #include <DirectXTex.h>
 #include <wrl.h>
 #include "object3D.h"
-
-
-#define DIRECTINPUT_VERSION 0x0800
+#include "Input.h"
 
 
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
-#pragma comment(lib, "dinput8.lib")
-#pragma comment(lib, "dxguid.lib")
+
 
 
 using namespace DirectX;
@@ -50,6 +46,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		debugController->EnableDebugLayer();
 	}
 #endif
+
+	//ポインタ置き場
+	Input* input = nullptr;
 
 	const int window_width = 1280;
 	const int window_height = 720;
@@ -93,6 +92,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	ComPtr<ID3D12GraphicsCommandList> commandList;
 	ComPtr<ID3D12CommandQueue> commandQueue;
 	ComPtr<ID3D12DescriptorHeap> rtvHeap;
+
 
 	//DXGIファクトリーの生成
 	result = CreateDXGIFactory(IID_PPV_ARGS(&dxgiFactory));
@@ -294,28 +294,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	result = device->CreateFence(fenceVal, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
 
+	input = new Input();
+	input->Initialize(w.hInstance,hwnd);
 
-#pragma region DirectInput関連
-	//DirectInputの初期化
-	IDirectInput8* directInput = nullptr;
-	result = DirectInput8Create(
-		w.hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&directInput, nullptr);
-	assert(SUCCEEDED(result));
-
-	//キーボードデバイスの生成
-	IDirectInputDevice8* keyboard = nullptr;
-	result = directInput->CreateDevice(GUID_SysKeyboard, &keyboard, NULL);
-	assert(SUCCEEDED(result));
-
-	//入力データ形式のセット
-	result = keyboard->SetDataFormat(&c_dfDIKeyboard); //標準形式
-	assert(SUCCEEDED(result));
-
-	//排他制御レベルのセット
-	result = keyboard->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
-	assert(SUCCEEDED(result));
-
-#pragma endregion
 
 #pragma region 頂点データ
 
@@ -1063,9 +1044,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		//DirectX毎フレーム処理ここから
 
 		//キーボード情報の取得開始
-		keyboard->Acquire();
+
 		BYTE key[256] = {};
-		keyboard->GetDeviceState(sizeof(key), key);
+
 
 #pragma region ビュー行列の計算
 		//ビュー行列の計算
@@ -1224,7 +1205,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	//ウィンドウクラスを登録解除
 	UnregisterClass(w.lpszClassName, w.hInstance);
-
+	delete input;
 	
 	return 0;
 }
