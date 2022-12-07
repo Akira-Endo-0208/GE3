@@ -10,7 +10,7 @@
 #include <wrl.h>
 #include "object3D.h"
 #include "Input.h"
-
+#include "WinApp.h"
 
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3d12.lib")
@@ -49,38 +49,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	//ポインタ置き場
 	Input* input = nullptr;
-
-	const int window_width = 1280;
-	const int window_height = 720;
-	WNDCLASSEX w{};
-	w.cbSize = sizeof(WNDCLASSEX);
-	w.lpfnWndProc = (WNDPROC)WindowProc;
-	w.lpszClassName = L"DirectXGame";
-	w.hInstance = GetModuleHandle(nullptr);
-	w.hCursor = LoadCursor(NULL, IDC_ARROW);
-
-	RegisterClassEx(&w);
-
-	RECT wrc = { 0, 0, window_width,window_height };
-
-	AdjustWindowRect(&wrc, WS_OVERLAPPEDWINDOW, false);
-
-	HWND hwnd = CreateWindow(w.lpszClassName,
-		L"DirectXGame",
-		WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
-		wrc.right - wrc.left,
-		wrc.bottom - wrc.top,
-		nullptr,
-		nullptr,
-		w.hInstance,
-		nullptr);
-
-	ShowWindow(hwnd, SW_SHOW);
-
-	MSG msg{}; // メッセージ
-
+	WinApp* winApp = nullptr;
+	
+	winApp = new WinApp();
+	winApp->Initialize();
 
 	//DirectX初期化処理ここから
 
@@ -198,7 +170,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//スワップチェーンの生成
 	result = dxgiFactory->CreateSwapChainForHwnd(
 		commandQueue.Get(),
-		hwnd,
+		winApp->GetHwnd(),
 		&swapChainDesc,
 		nullptr,
 		nullptr,
@@ -245,8 +217,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//リソース設定
 	D3D12_RESOURCE_DESC depthResourceDesc{};
 	depthResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	depthResourceDesc.Width = window_width;//レンダーターゲットに合わせる
-	depthResourceDesc.Height = window_height;//レンダーターゲットに合わせる
+	depthResourceDesc.Width = WinApp::window_width;//レンダーターゲットに合わせる
+	depthResourceDesc.Height = WinApp::window_height;//レンダーターゲットに合わせる
 	depthResourceDesc.DepthOrArraySize = 1;
 	depthResourceDesc.Format = DXGI_FORMAT_D32_FLOAT;//深度値フォーマット
 	depthResourceDesc.SampleDesc.Count = 1;
@@ -295,7 +267,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	result = device->CreateFence(fenceVal, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
 
 	input = new Input();
-	input->Initialize(w.hInstance,hwnd);
+	input->Initialize(winApp->GetHInstance(),winApp->GetHwnd());
 
 
 #pragma region 頂点データ
@@ -1206,6 +1178,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//ウィンドウクラスを登録解除
 	UnregisterClass(w.lpszClassName, w.hInstance);
 	delete input;
-	
+	delete winApp;
 	return 0;
 }
