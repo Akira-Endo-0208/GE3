@@ -31,3 +31,13 @@ void Input::Update() {
 
 
 }
+
+bool Input::PushKey(BYTE keyNumber)
+{
+	//w’èƒL[‚ğ‰Ÿ‚µ‚Ä‚¢‚ê‚Îtrue‚ğ•Ô‚·
+	if (key[keyNumber])
+	{
+		return true;
+	}
+	return false;
+}

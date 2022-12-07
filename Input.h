@@ -23,7 +23,11 @@ public:
 	//XV
 	void Update();
 
+	bool PushKey(BYTE keyNumber);
+
 private:
 	ComPtr<IDirectInputDevice8> keyboard;
+
+	BYTE key[256] = {};
 };
 
