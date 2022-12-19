@@ -368,7 +368,8 @@ void DirectXCommon::UpdateFixFPS()
 			//1マイクロ秒スリープ
 			std::this_thread::sleep_for(std::chrono::microseconds(1));
 		}
-	}
+	
 	//現在の時間を記録する
 	reference_ = std::chrono::steady_clock::now();
+
 }
