@@ -15,7 +15,7 @@ LRESULT WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 
 void WinApp::Initialize()
 {
-
+	
 	timeBeginPeriod(1);
 	
 	wndClass_.cbSize = sizeof(WNDCLASSEX);
